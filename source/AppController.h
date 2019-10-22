@@ -121,12 +121,12 @@
  */
 
 //"mqtt://farmer-01.cloudmqtt.com"
-#define APP_MQTT_BROKER_HOST_URL            "test.mosquitto.org"
+#define APP_MQTT_BROKER_HOST_URL            "farmer-01.cloudmqtt.com"
 
 /**
  * APP_MQTT_BROKER_HOST_PORT is the MQTT broker host port.
  */
-#define APP_MQTT_BROKER_HOST_PORT           UINT16_C(1883)
+#define APP_MQTT_BROKER_HOST_PORT           UINT16_C(15201)
 
 /**
  * APP_MQTT_CLIENT_ID is the device name
