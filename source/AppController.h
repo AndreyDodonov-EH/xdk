@@ -120,8 +120,11 @@
  * APP_MQTT_BROKER_HOST_URL is the MQTT broker host address URL.
  */
 
-//"mqtt://farmer-01.cloudmqtt.com"
 #define APP_MQTT_BROKER_HOST_URL            "farmer-01.cloudmqtt.com"
+
+#define APP_MQTT_USERNAME            "qvwtazyt"
+
+#define APP_MQTT_PASSWORD            "Aix443LXfogZ"
 
 /**
  * APP_MQTT_BROKER_HOST_PORT is the MQTT broker host port.

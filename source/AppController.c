@@ -173,6 +173,8 @@ static MQTT_Connect_T MqttConnectInfo =
         {
                 .ClientId = APP_MQTT_CLIENT_ID,
                 .BrokerURL = APP_MQTT_BROKER_HOST_URL,
+				.Username = APP_MQTT_USERNAME,
+				.Password = APP_MQTT_PASSWORD,
                 .BrokerPort = APP_MQTT_BROKER_HOST_PORT,
                 .CleanSession = true,
                 .KeepAliveInterval = 100,
