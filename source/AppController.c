@@ -315,13 +315,8 @@ static void AppControllerFire(void* pvParameters)
     Retcode_T retcode = RETCODE_OK;
     Sensor_Value_T sensorValue;
     char publishBuffer[APP_MQTT_DATA_BUFFER_SIZE];
-//    const char *publishDataFormat = "Environmental Data -\n"
-//            "\r\tHumidity : %ld\n"
-//            "\r\tPressure : %ld\n"
-//            "\r\tTemperature : %f\xf8\n";
 
-    const char *publishDataFormat = "Acoustic Data -\n"
-                "\r\Acoustic : %f\xf8\n";
+    const char *publishDataFormat = "%f\xf8";
 
     memset(&sensorValue, 0x00, sizeof(sensorValue));
 #if APP_MQTT_SECURE_ENABLE
@@ -351,15 +346,6 @@ static void AppControllerFire(void* pvParameters)
         }
     }
 
-    /* if (RETCODE_OK == retcode)
-    {
-        retcode = MQTT_SubsribeToTopic(&MqttSubscribeInfo, MQTT_SUBSCRIBE_TIMEOUT_IN_MS);
-        if (RETCODE_OK != retcode)
-        {
-            printf("AppControllerFire : MQTT subscribe failed \n\r");
-        }
-    }*/
-
     if (RETCODE_OK != retcode)
     {
         /* We raise error and still proceed to publish data periodically */
@@ -379,10 +365,6 @@ static void AppControllerFire(void* pvParameters)
 
         /* Check whether the WLAN network connection is available */
         retcode = AppControllerValidateWLANConnectivity();
-//        if (RETCODE_OK == retcode)
-//        {
-//            retcode = Sensor_GetData(&sensorValue);
-//        }
         if (RETCODE_OK == retcode)
         {
 
