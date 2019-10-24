@@ -88,7 +88,6 @@
 
 #define MQTT_PUBLISH_TIMEOUT_IN_MS                  UINT32_C(20000)/**< Macro for MQTT publication timeout in milli-second */
 
-#define APP_TEMPERATURE_OFFSET_CORRECTION               (-3459)/**< Macro for static temperature offset correction. Self heating, temperature correction factor */
 #define APP_MQTT_DATA_BUFFER_SIZE                   UINT32_C(256)/**< macro for data size of incoming subscribed and published messages */
 
 /* local variables ********************************************************** */
@@ -107,49 +106,6 @@ static WLAN_Setup_T WLANSetupInfo =
                 .Mask = WLAN_MASK,
         };/**< WLAN setup parameters */
 
-static Sensor_Setup_T SensorSetup =
-        {
-                .CmdProcessorHandle = NULL,
-                .Enable =
-                        {
-                                .Accel = false,
-                                .Mag = false,
-                                .Gyro = false,
-                                .Humidity = true,
-                                .Temp = true,
-                                .Pressure = true,
-                                .Light = false,
-                                .Noise = false,
-                        },
-                .Config =
-                        {
-                                .Accel =
-                                        {
-                                                .Type = SENSOR_ACCEL_BMA280,
-                                                .IsRawData = false,
-                                                .IsInteruptEnabled = false,
-                                                .Callback = NULL,
-                                        },
-                                .Gyro =
-                                        {
-                                                .Type = SENSOR_GYRO_BMG160,
-                                                .IsRawData = false,
-                                        },
-                                .Mag =
-                                        {
-                                                .IsRawData = false
-                                        },
-                                .Light =
-                                        {
-                                                .IsInteruptEnabled = false,
-                                                .Callback = NULL,
-                                        },
-                                .Temp =
-                                        {
-                                                .OffsetCorrection = APP_TEMPERATURE_OFFSET_CORRECTION,
-                                        },
-                        },
-        };/**< Sensor setup parameters */
 
 static MQTT_Setup_T MqttSetupInfo =
         {
@@ -276,7 +232,6 @@ static Retcode_T AppControllerValidateWLANConnectivity(void)
  * - Synchronize SNTP time stamp for the system if MQTT communication is secure
  * - Connect to MQTT broker
  * - Subscribe to MQTT topic
- * - Read environmental sensor data
  * - Publish data periodically for a MQTT topic
  *
  * @param[in] pvParameters
@@ -287,12 +242,9 @@ static void AppControllerFire(void* pvParameters)
     BCDS_UNUSED(pvParameters);
 
     Retcode_T retcode = RETCODE_OK;
-    Sensor_Value_T sensorValue;
     char publishBuffer[APP_MQTT_DATA_BUFFER_SIZE];
 
     const char *publishDataFormat = "%f\xf8";
-
-    memset(&sensorValue, 0x00, sizeof(sensorValue));
 
     if (RETCODE_OK == retcode)
     {
@@ -433,11 +385,6 @@ static void AppControllerSetup(void * param1, uint32_t param2)
     if (RETCODE_OK == retcode)
     {
         retcode = MQTT_Setup(&MqttSetupInfo);
-    }
-    if (RETCODE_OK == retcode)
-    {
-        SensorSetup.CmdProcessorHandle = AppCmdProcessor;
-        retcode = Sensor_Setup(&SensorSetup);
     }
     if (RETCODE_OK == retcode)
     {
