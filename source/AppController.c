@@ -91,10 +91,6 @@
 #define APP_TEMPERATURE_OFFSET_CORRECTION               (-3459)/**< Macro for static temperature offset correction. Self heating, temperature correction factor */
 #define APP_MQTT_DATA_BUFFER_SIZE                   UINT32_C(256)/**< macro for data size of incoming subscribed and published messages */
 
-#if APP_MQTT_SECURE_ENABLE
-#define APP_RESPONSE_FROM_SNTP_SERVER_TIMEOUT       UINT32_C(10000)/**< Timeout for SNTP server time sync */
-#endif /* APP_MQTT_SECURE_ENABLE */
-
 /* local variables ********************************************************** */
 
 static WLAN_Setup_T WLANSetupInfo =
@@ -155,18 +151,10 @@ static Sensor_Setup_T SensorSetup =
                         },
         };/**< Sensor setup parameters */
 
-#if APP_MQTT_SECURE_ENABLE
-static SNTP_Setup_T SNTPSetupInfo =
-        {
-                .ServerUrl = SNTP_SERVER_URL,
-                .ServerPort = SNTP_SERVER_PORT,
-        };/**< SNTP setup parameters */
-#endif /* APP_MQTT_SECURE_ENABLE */
-
 static MQTT_Setup_T MqttSetupInfo =
         {
                 .MqttType = MQTT_TYPE_SERVALSTACK,
-                .IsSecure = APP_MQTT_SECURE_ENABLE,
+                .IsSecure = 0,
         };/**< MQTT setup parameters */
 
 static MQTT_Connect_T MqttConnectInfo =
@@ -196,6 +184,9 @@ static MQTT_Publish_T MqttPublishInfo =
                 .Payload = NULL,
                 .PayloadLength = 0UL,
         };/**< MQTT publish parameters */
+
+#define ALL_DATA_SIZE 1000
+static char ALL_DATA[ALL_DATA_SIZE];
 
 static uint32_t AppIncomingMsgCount = 0UL;/**< Incoming message count */
 
@@ -257,24 +248,7 @@ static Retcode_T AppControllerValidateWLANConnectivity(void)
     nwStatus = WlanNetworkConnect_GetIpStatus();
     if (WLANNWCT_IPSTATUS_CT_AQRD != nwStatus)
     {
-#if APP_MQTT_SECURE_ENABLE
-        static bool isSntpDisabled = false;
-        if (false == isSntpDisabled)
-        {
-            retcode = SNTP_Disable();
-        }
-        if (RETCODE_OK == retcode)
-        {
-            isSntpDisabled = true;
-            retcode = WLAN_Reconnect();
-        }
-        if (RETCODE_OK == retcode)
-        {
-            retcode = SNTP_Enable();
-        }
-#else
         retcode = WLAN_Reconnect();
-#endif /* APP_MQTT_SECURE_ENABLE */
 
         if (RETCODE_OK == retcode)
         {
@@ -319,23 +293,6 @@ static void AppControllerFire(void* pvParameters)
     const char *publishDataFormat = "%f\xf8";
 
     memset(&sensorValue, 0x00, sizeof(sensorValue));
-#if APP_MQTT_SECURE_ENABLE
-
-    uint64_t sntpTimeStampFromServer = 0UL;
-
-    /* We Synchronize the node with the SNTP server for time-stamp.
-     * Since there is no point in doing a HTTPS communication without a valid time */
-    do
-    {
-        retcode = SNTP_GetTimeFromServer(&sntpTimeStampFromServer, APP_RESPONSE_FROM_SNTP_SERVER_TIMEOUT);
-        if ((RETCODE_OK != retcode) || (0UL == sntpTimeStampFromServer))
-        {
-            printf("AppControllerFire : SNTP server time was not synchronized. Retrying...\r\n");
-        }
-    } while (0UL == sntpTimeStampFromServer);
-
-    BCDS_UNUSED(sntpTimeStampFromServer); /* Copy of sntpTimeStampFromServer will be used be HTTPS for TLS handshake */
-#endif /* APP_MQTT_SECURE_ENABLE */
 
     if (RETCODE_OK == retcode)
     {
@@ -372,11 +329,20 @@ static void AppControllerFire(void* pvParameters)
 
         	NoiseSensor_ReadRmsValue(&acousticData,10U);
 
+//        	const uint16_t* ALL = NoiseSensor_ReadALL();
+
+
             int32_t length = snprintf((char *) publishBuffer, APP_MQTT_DATA_BUFFER_SIZE, publishDataFormat,
                     acousticData);
+//        	uint32_t length = 200*133*sizeof(float);
 
-            MqttPublishInfo.Payload = publishBuffer;
-            MqttPublishInfo.PayloadLength = length;
+
+            for (uint16_t i = 0; i<ALL_DATA_SIZE; i++) {
+            	ALL_DATA[i] = i % 255;
+            }
+
+            MqttPublishInfo.Payload = ALL_DATA;
+            MqttPublishInfo.PayloadLength = ALL_DATA_SIZE;
 
             retcode = MQTT_PublishToTopic(&MqttPublishInfo, MQTT_PUBLISH_TIMEOUT_IN_MS);
             if (RETCODE_OK != retcode)
@@ -416,12 +382,6 @@ static void AppControllerEnable(void * param1, uint32_t param2)
     {
         retcode = ServalPAL_Enable();
     }
-#if APP_MQTT_SECURE_ENABLE
-    if (RETCODE_OK == retcode)
-    {
-        retcode = SNTP_Enable();
-    }
-#endif /* APP_MQTT_SECURE_ENABLE */
     if (RETCODE_OK == retcode)
     {
         retcode = MQTT_Enable();
@@ -470,12 +430,6 @@ static void AppControllerSetup(void * param1, uint32_t param2)
     {
         retcode = ServalPAL_Setup(AppCmdProcessor);
     }
-#if APP_MQTT_SECURE_ENABLE
-    if (RETCODE_OK == retcode)
-    {
-        retcode = SNTP_Setup(&SNTPSetupInfo);
-    }
-#endif /* APP_MQTT_SECURE_ENABLE */
     if (RETCODE_OK == retcode)
     {
         retcode = MQTT_Setup(&MqttSetupInfo);

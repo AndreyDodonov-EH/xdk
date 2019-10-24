@@ -53,21 +53,19 @@
 
 /* WLAN configurations ****************************************************** */
 
-#warning Please configure your WLAN below and remove this line.
-
 /**
  * WLAN_SSID is the WIFI network name where user wants connect the XDK device.
  * Make sure to update the WLAN_PSK constant according to your required WIFI network.
  */
-#define WLAN_SSID                           "HUAWEI-EEA4"
+#define WLAN_SSID                           "DEV-Wlan"
 
 /**
  * WLAN_PSK is the WIFI router WPA/WPA2 password used at the Wifi network connection.
  * Make sure to update the WLAN_PSK constant according to your router password.
  */
-#define WLAN_PSK                            "75326704"
+#define WLAN_PSK                            "Key4development"
 
-#define SAMPLING_FREQUENCY 					22050U
+#define SAMPLING_FREQUENCY 					8000U
 
 /**
  * WLAN_STATIC_IP is a boolean. If "true" then static IP will be assigned and if "false" then DHCP is used.
@@ -141,19 +139,10 @@
  */
 #define APP_MQTT_TOPIC                      "sound"
 
-#warning Configure APP_MQTT_SECURE_ENABLE to 1 to enable the MQTT with secure communication.\
-    Otherwise Communication will happen without security. \
-    Also provide the right server certificate in the ServerCA.h file. \
-    Remove this line to avoid warnings.
-/**
- * APP_MQTT_SECURE_ENABLE is a macro to enable MQTT with security
- */
-#define APP_MQTT_SECURE_ENABLE              0
-
 /**
  * APP_MQTT_DATA_PUBLISH_PERIODICITY is time for MQTT to publish the sensor data
  */
-#define APP_MQTT_DATA_PUBLISH_PERIODICITY   UINT32_C(1000)
+#define APP_MQTT_DATA_PUBLISH_PERIODICITY   UINT32_C(500)
 
 /* local function prototype declarations */
 
