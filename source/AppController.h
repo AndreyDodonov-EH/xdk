@@ -57,13 +57,13 @@
  * WLAN_SSID is the WIFI network name where user wants connect the XDK device.
  * Make sure to update the WLAN_PSK constant according to your required WIFI network.
  */
-#define WLAN_SSID                           "DEV-Wlan"
+#define WLAN_SSID                           "EH-Guest-2019-WK43"
 
 /**
  * WLAN_PSK is the WIFI router WPA/WPA2 password used at the Wifi network connection.
  * Make sure to update the WLAN_PSK constant according to your router password.
  */
-#define WLAN_PSK                            "Key4development"
+#define WLAN_PSK                            "Bilbao1021Spain"
 
 #define SAMPLING_FREQUENCY 					8000U
 
